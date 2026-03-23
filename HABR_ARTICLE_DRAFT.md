@@ -188,28 +188,30 @@ class UserResponse(BaseModel):
 
 Ниже — архитектурная схема “маршрута запроса” ровно для сценария из задания:
 
-```mermaid
 flowchart TD
-  C[Клиент] -->|1) POST /auth/login {username,password}| API1[FastAPI endpoint: /auth/login]
-  API1 -->|2) HTTP request принят| Pyd1[3) Pydantic валидирует LoginRequest]
-  Pyd1 -->|4) Проверка пользователя| S1[AuthService.authenticate_user]
-  S1 --> R1[UserRepository.get_user_by_username]
-  R1 --> V1[verify_password(bcrypt)]
-  V1 --> D1{user.disabled?}
-  D1 -->|нет| T1[5) create_access_token: sub, exp, iat + подпись HS256]
-  D1 -->|да| Fail1[аутентификация неуспешна (401)]
-  T1 -->|6) TokenResponse вернулся| API1R[ответ 200 + access_token]
-  Fail1 --> FailResp1[401 + WWW-Authenticate: Bearer]
-  API1R --> Cstore[Клиент хранит access_token]
-
-  Cstore -->|7) GET /users/me| API2[FastAPI endpoint: /users/me]
-  API2 -->|8) Authorization: Bearer token| Dep[9) Depends(get_current_user_username)]
-  Dep -->|10) HTTPBearer извлекает token| Dec[валидирование decode_access_token]
-  Dec -->|ошибка подписи/exp| Fail2[401]
-  Fail2 --> FailResp2[401 + WWW-Authenticate: Bearer]
-  Dec -->|успех| UService[11) payload.sub -> username + UserService.get_user_by_username]
-  UService -->|12) защищённый роут выполняется| API2R[ответ UserResponse 200]
-```
+    C[Клиент] -->|1 POST /auth/login| API1[FastAPI: /auth/login]
+    
+    API1 --> Pyd1[Pydantic валидация LoginRequest]
+    Pyd1 --> S1[AuthService.authenticate_user]
+    
+    S1 --> R1[UserRepository.get_user_by_username]
+    R1 --> V1[verify_password bcrypt]
+    V1 --> D1{user.disabled?}
+    
+    D1 -->|нет| T1[create_access_token<br/>sub, exp, iat + HS256]
+    D1 -->|да| Fail1[401 Unauthorized]
+    
+    T1 --> API1R[200 OK + access_token]
+    Fail1 --> FailResp1[401 + WWW-Authenticate]
+    API1R --> Cstore[Клиент хранит токен]
+    
+    Cstore -->|7 GET /users/me| API2[FastAPI: /users/me]
+    API2 --> Dep[Depends get_current_user]
+    Dep --> Dec[decode_access_token]
+    
+    Dec -->|ошибка| Fail2[401]
+    Dec -->|успех| UService[UserService.get_user_by_username]
+    UService --> API2R[200 UserResponse]
 
 ## Выводы: что даёт такая архитектура
 
