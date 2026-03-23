@@ -187,31 +187,7 @@ class UserResponse(BaseModel):
 ## Схема работы: полный путь запроса
 
 Ниже — архитектурная схема “маршрута запроса” ровно для сценария из задания:
-
-flowchart TD
-    C[Клиент] -->|1 POST /auth/login| API1[FastAPI: /auth/login]
-    
-    API1 --> Pyd1[Pydantic валидация LoginRequest]
-    Pyd1 --> S1[AuthService.authenticate_user]
-    
-    S1 --> R1[UserRepository.get_user_by_username]
-    R1 --> V1[verify_password bcrypt]
-    V1 --> D1{user.disabled?}
-    
-    D1 -->|нет| T1[create_access_token<br/>sub, exp, iat + HS256]
-    D1 -->|да| Fail1[401 Unauthorized]
-    
-    T1 --> API1R[200 OK + access_token]
-    Fail1 --> FailResp1[401 + WWW-Authenticate]
-    API1R --> Cstore[Клиент хранит токен]
-    
-    Cstore -->|7 GET /users/me| API2[FastAPI: /users/me]
-    API2 --> Dep[Depends get_current_user]
-    Dep --> Dec[decode_access_token]
-    
-    Dec -->|ошибка| Fail2[401]
-    Dec -->|успех| UService[UserService.get_user_by_username]
-    UService --> API2R[200 UserResponse]
+<img width="1891" height="5696" alt="deepseek_mermaid_20260323_526d5e" src="https://github.com/user-attachments/assets/61a1c202-0656-405c-ab7f-e4609f1b00ff" />
 
 ## Выводы: что даёт такая архитектура
 
