@@ -187,7 +187,8 @@ class UserResponse(BaseModel):
 ## Схема работы: полный путь запроса
 
 Ниже — архитектурная схема “маршрута запроса” ровно для сценария из задания:
-<img width="1891" height="5696" alt="deepseek_mermaid_20260323_526d5e" src="https://github.com/user-attachments/assets/61a1c202-0656-405c-ab7f-e4609f1b00ff" />
+<img width="1891" height="5696" alt="567770800-61a1c202-0656-405c-ab7f-e4609f1b00ff" src="https://github.com/user-attachments/assets/b934199b-31ca-443d-b6d6-a07e37bbb282" />
+
 
 ## Выводы: что даёт такая архитектура
 
